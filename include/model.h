@@ -1,12 +1,11 @@
-#ifndef MODEL_H
-#define MODEL_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "LIF.h"
-#include "Linear.h"
+#include "lif.h"
+#include "linear.h"
 
 /* COMMENTS:
    - In embedded systems dynamic memory allocation should be avoided in order to avoid memory fragmentations
@@ -77,6 +76,4 @@ unsigned int predict(model_t*);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

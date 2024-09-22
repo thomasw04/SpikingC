@@ -1,11 +1,10 @@
-#ifndef LIF_H
-#define LIF_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "Utility.h"
+#include "utility.h"
 
 /* A structure holding all relevant data for LIF layers */
 typedef struct LIF{
@@ -59,6 +58,4 @@ void testLIF(lif_t* layer, const spike_array_t* spikes);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

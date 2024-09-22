@@ -1,4 +1,4 @@
-#include "../include/Utility.h"
+#include "utility.h"
 
 #define BUFFER_SIZE 30055
 
@@ -131,7 +131,7 @@ void loadCSVToStaticBiasArray(const char *filepath, wfloat_t *B, unsigned int st
     fclose(file);
 }
 
-void loadStaticWeightsAndBiases()
+void loadStaticWeightsAndBiases(void)
 {
     // Adjust file paths and array indices as needed
     loadCSVToStaticWeightArray(PATH_WEIGHTS_FC1, W, 0, INPUT_SIZE * L1_SIZE_OUT);

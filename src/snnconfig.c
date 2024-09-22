@@ -1,4 +1,4 @@
-#include "../include/SNNconfig.h"
+#include "snnconfig.h" 
 
 unsigned int    layer_size[NUM_LAYERS + 1]          = {INPUT_SIZE, L1_SIZE_OUT, LIF1_SIZE, 
                                                        L2_SIZE_OUT, LIF2_SIZE, L3_SIZE_OUT, 

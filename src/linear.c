@@ -1,4 +1,4 @@
-#include "../include/Linear.h"
+#include "linear.h"
 
 void clearLinear(linear_t* layer){
     free(layer->W.ptr);

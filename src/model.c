@@ -1,4 +1,4 @@
-#include "../include/Model.h"
+#include "model.h"
 
 void clearModel(model_t *model)
 {

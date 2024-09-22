@@ -4,14 +4,13 @@
     Description: A set of structures and functions used to describe and perform computations for a linear layer 
 */
 
-#ifndef LINEAR_H
-#define LINEAR_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "Utility.h"
+#include "utility.h"
 
 /* A structure holding all relevant data for linear layers */
 typedef struct Linear{
@@ -42,6 +41,4 @@ void clearLinear(linear_t* layer);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

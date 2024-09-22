@@ -1,11 +1,10 @@
-#ifndef UTILITY_H
-#define UTILITY_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "SNNconfig.h"
+#include "snnconfig.h"
 #include <ctype.h>
 #include <math.h>
 
@@ -118,7 +117,7 @@ void loadCSVToStaticBiasArray(const char *filepath, wfloat_t *B, unsigned int st
  * This function orchestrates the sequential loading of weights and biases for multiple layers of a neural network,
  * setting the correct indices and sizes for each layer based on predefined layer dimensions.
  */
-void loadStaticWeightsAndBiases();
+void loadStaticWeightsAndBiases(void);
 
 /**
  * Reads a CSV file and stores its contents into a dynamically allocated 2D array of floats.
@@ -279,6 +278,4 @@ void loadTimestepFromFile(FILE *file, cfloat_t *scratchpadMemory, size_t timeste
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/cc",
+            "cStandard": "gnu99",
+            "intelliSenseMode": "${default}",
+            "compilerArgs": [
+                "-Wall -Wextra -Werror -pedantic -Iinclude"
+            ]
+        }
+    ],
+    "version": 4
+}

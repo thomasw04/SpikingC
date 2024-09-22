@@ -1,4 +1,4 @@
-#include "../include/LIF.h"
+#include "lif.h"
 
 #ifdef TEST
 

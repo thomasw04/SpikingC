@@ -1,5 +1,5 @@
-#include "../include/Model.h"
-#include "../include/Utility.h"
+#include "model.h"
+#include "utility.h"
 
 #define PATH_BIN_DATA "/home/copparihollmann/neuroTUM/NMNIST/"
 
@@ -11,11 +11,6 @@ int main(void)
     cfloat_array_t In;
     In.size = INPUT_SIZE;
     In.ptr = scrachpad_memory;
-    if (!In.ptr)
-    {
-        perror("Failed to allocate memory for input");
-        return -1;
-    }
 
     #ifndef BINARY_IMPLEMENTATION
     /* Load weights and biases */
