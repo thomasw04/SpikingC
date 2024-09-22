@@ -1,10 +1,18 @@
 #include "model.h"
 #include "utility.h"
 
+#include <unistd.h>
+#include <limits.h>
+
 #define PATH_BIN_DATA "/home/copparihollmann/neuroTUM/NMNIST/"
 
 int main(void)
 {
+    char cwd[PATH_MAX];
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        printf("Current working dir: %s\n", cwd);
+    } 
+
     model_t SNN;
     initModel(&SNN);
 
@@ -29,7 +37,7 @@ int main(void)
     {
         #ifndef BINARY_IMPLEMENTATION
         // Construct the filename for the current timestep
-        sprintf(filename, "../../models/SNN_3L_simple_LIF_NMNIST/intermediate_outputs/input/inputs_timestep_%u.csv", i);
+        sprintf(filename, "models/SNN_3L_simple_LIF_NMNIST/intermediate_outputs/input/inputs_timestep_%u.csv", i);
 
         // Load the data for this time step
         int rows, cols;
@@ -41,12 +49,12 @@ int main(void)
         }
 
         // Assume inputData[0] contains the input for this timestep
-        int cntZeors = 0;
+        //int cntZeors = 0;
         for (unsigned int j = 0; j < (unsigned int)cols && j < In.size; j++)
         {
             In.ptr[j] = inputData[0][j];
             if(In.ptr[j] == 0){
-                cntZeors++;
+                //cntZeors++;
             }
         }
 
@@ -56,7 +64,7 @@ int main(void)
         freeCSVData(inputData, rows);
         #else
         // Construct the filename for the current timestep
-        sprintf(filename, "../../models/SNN_3L_simple_LIF_NMNIST/intermediate_outputs_binary/inputs/inputs_timestep_%u.bin", i);
+        sprintf(filename, "models/SNN_3L_simple_LIF_NMNIST/intermediate_outputs_binary/inputs/inputs_timestep_%u.bin", i);
 
         // Load the data for this time step
         if (!loadBinaryInputData(filename, In.ptr, In.size))

@@ -1,5 +1,7 @@
 #include "utility.h"
 
+#include <errno.h>
+
 #define BUFFER_SIZE 30055
 
 unsigned int getOffset(unsigned int layer_num, char offset_type, const char* str){
@@ -95,7 +97,7 @@ void loadCSVToStaticWeightArray(const char *filepath, wfloat_t *W, unsigned int 
     FILE *file = fopen(filepath, "r");
     if (!file)
     {
-        perror("Failed to open file");
+        fprintf(stderr, "Failed to open file %s: %s\n", filepath, strerror(errno));
         return;
     }
 
@@ -118,7 +120,7 @@ void loadCSVToStaticBiasArray(const char *filepath, wfloat_t *B, unsigned int st
     FILE *file = fopen(filepath, "r");
     if (!file)
     {
-        perror("Failed to open file");
+        fprintf(stderr, "Failed to open file %s: %s\n", filepath, strerror(errno));
         return;
     }
 
@@ -158,7 +160,7 @@ float **readCSV(const char *filename, int *rows, int *cols)
     FILE *file = fopen(filename, "r");
     if (!file)
     {
-        perror("Failed to open file");
+        fprintf(stderr, "Failed to open file %s: %s\n", filename, strerror(errno));
         return NULL;
     }
 

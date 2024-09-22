@@ -9,7 +9,7 @@ void testLIF(lif_t* layer, const spike_array_t* spikes){
     char filename[256];
 
     /**************************************** Membrane potential ****************************************/
-    sprintf(filename, "../../models/SNN_3L_simple_LIF_NMNIST/intermediate_outputs/mem%u/mem%u_timestep_%u.csv", 
+    sprintf(filename, "models/SNN_3L_simple_LIF_NMNIST/intermediate_outputs/mem%u/mem%u_timestep_%u.csv", 
                       (layer->layer_num / 2) + 1, (layer->layer_num / 2) + 1, layer->curr_time_step);
     
     float **data = readCSV(filename, &rows, &cols);
@@ -31,7 +31,7 @@ void testLIF(lif_t* layer, const spike_array_t* spikes){
 
     /********************************************* Spikes *********************************************/
     
-    sprintf(filename, "../../models/SNN_3L_simple_LIF_NMNIST/intermediate_outputs/lif%u/lif%u_spikes_timestep_%u.csv", 
+    sprintf(filename, "models/SNN_3L_simple_LIF_NMNIST/intermediate_outputs/lif%u/lif%u_spikes_timestep_%u.csv", 
                       (layer->layer_num / 2) + 1, (layer->layer_num / 2) + 1, layer->curr_time_step);
 
     data = readCSV(filename, &rows, &cols);
@@ -68,7 +68,7 @@ void testLIF(lif_t *layer, const spike_array_t *spikes)
     char filename[256];
 
     /**************************************** Membrane potential ****************************************/
-    sprintf(filename, "../../models/SNN_3L_simple_LIF_NMNIST/intermediate_outputs_binary/mem%u/mem%u_timestep_%u.bin",
+    sprintf(filename, "models/SNN_3L_simple_LIF_NMNIST/intermediate_outputs_binary/mem%u/mem%u_timestep_%u.bin",
             (layer->layer_num / 2) + 1, (layer->layer_num / 2) + 1, layer->curr_time_step);
 
     float *memPotentials = loadBinaryFloatData(filename, layer->U.size);
@@ -94,7 +94,7 @@ void testLIF(lif_t *layer, const spike_array_t *spikes)
 
     /********************************************* Spikes *********************************************/
 
-    sprintf(filename, "../../models/SNN_3L_simple_LIF_NMNIST/intermediate_outputs_binary/lif%u/lif%u_spikes_timestep_%u.bin",
+    sprintf(filename, "models/SNN_3L_simple_LIF_NMNIST/intermediate_outputs_binary/lif%u/lif%u_spikes_timestep_%u.bin",
             (layer->layer_num / 2) + 1, (layer->layer_num / 2) + 1, layer->curr_time_step);
 
     spike_t *spikeData = loadBinarySpikeData(filename, layer->U.size);
