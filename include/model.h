@@ -7,6 +7,8 @@ extern "C" {
 #include "lif.h"
 #include "linear.h"
 
+#include <errno.h>
+
 /* COMMENTS:
    - In embedded systems dynamic memory allocation should be avoided in order to avoid memory fragmentations
      that could lead to malloc failure. Embedded devices are often not accessible and therefore no repairs/fixes
@@ -32,10 +34,6 @@ typedef struct Model{
     cfloat_array_t floatOut;
     spike_array_t spikeOut;
     unsigned int *actPred;
-    void (*clearModel_fptr) (struct Model*);
-    void (*resetState_fptr) (struct Model*);
-    void (*run_fptr) (struct Model*, cfloat_array_t*);
-    unsigned int (*predict_fptr) (struct Model*);
 } model_t;
 
 /**
@@ -43,7 +41,7 @@ typedef struct Model{
  * @param model A pointer to a structure representing a model.
  * @return Nothing is returned.
  */
-void initModel(model_t*);
+int initModel(model_t*);
 
 /**
  * Deallocates previously allocated memory.

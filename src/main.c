@@ -1,20 +1,35 @@
+#include "config.h"
+
 #include "model.h"
 #include "utility.h"
 
 #include <unistd.h>
-#include <limits.h>
 
 #define PATH_BIN_DATA "/home/copparihollmann/neuroTUM/NMNIST/"
 
-int main(void)
+void print_cwd()
 {
-    char cwd[PATH_MAX];
+    char cwd[4096];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
         printf("Current working dir: %s\n", cwd);
     } 
+}
+
+
+int main(void)
+{
+#ifdef DEBUG
+    // Additional information when debugging.
+    print_cwd();
+#endif
 
     model_t SNN;
-    initModel(&SNN);
+    int ret = initModel(&SNN);
+    
+    if(ret) {
+        fprintf(stderr, "Failed to initialize the model: %s\n", strerror(ret));
+        return 1;
+    }
 
     cfloat_array_t In;
     In.size = INPUT_SIZE;
@@ -29,7 +44,7 @@ int main(void)
     #endif
 
     /* Reset the state */
-    SNN.resetState_fptr(&SNN);
+    resetState(&SNN);
     
     #ifdef TEST
     char filename[256];
@@ -121,15 +136,14 @@ int main(void)
             for (unsigned int i = 0; i < TIME_STEPS; i++)
             {
                 loadTimestepFromFile(file, scrachpad_memory, i);
-                SNN.run_fptr(&SNN, &In);
-                
+                run(&SNN, &In);
             }
             
             //loadInputsFromFile(filePath, scrachpad_memory, INPUT_SIZE);
 
             //SNN.run_fptr(&SNN, &In);
 
-            int predictedLabel = SNN.predict_fptr(&SNN);
+            int predictedLabel = predict(&SNN);
 
             if (predictedLabel == trueLabel)
             {
@@ -142,11 +156,11 @@ int main(void)
             fclose(file);
 
             /* Reset the state */
-            SNN.resetState_fptr(&SNN);
+            resetState(&SNN);
         }
     }
 
-    SNN.clearModel_fptr(&SNN);
+    clearModel(&SNN);
 
     closedir(dir);
 

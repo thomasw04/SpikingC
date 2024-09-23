@@ -110,14 +110,24 @@ unsigned int predict(model_t* model){
     return idx;    
 }
 
-void initModel(model_t *model)
+int initModel(model_t *model)
 {
-    model->clearModel_fptr = &clearModel;
-    model->resetState_fptr = &resetState;
-    model->run_fptr = &run;
-    model->predict_fptr = &predict;
-    model->layers = (layer_instance_t *)malloc(sizeof(layer_instance_t) * NUM_LAYERS);
-    model->actPred = (unsigned int *)malloc(sizeof(unsigned int) * layer_size[NUM_LAYERS]);
+    layer_instance_t* layers = (layer_instance_t*)malloc(sizeof(layer_instance_t) * NUM_LAYERS);
+
+    if(!layers){
+        return -ENOMEM;
+    }
+
+    model->layers = layers;
+
+    unsigned int *actPred = (unsigned int*)malloc(sizeof(unsigned int) * layer_size[NUM_LAYERS]);
+
+    if(!actPred){
+        free(layers);
+        return -ENOMEM;
+    }
+
+    model->actPred = actPred;
 
     for (unsigned int i = 0; i < NUM_LAYERS; i++)
     {
@@ -132,4 +142,6 @@ void initModel(model_t *model)
             initLIF(model->layers[i].lif_ptr, i);
         }
     }
+
+    return 0;
 }

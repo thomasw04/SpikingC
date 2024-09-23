@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#include "snnconfig.h"
+#include "config.h"
 #include <ctype.h>
 #include <math.h>
 

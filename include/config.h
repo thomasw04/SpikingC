@@ -5,15 +5,6 @@ extern "C"
 {
 #endif
 
-/* Common includes */
-#include <ctype.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-
 /* Test related macros */
 //#define TEST
 //#define BINARY_IMPLEMENTATION
@@ -21,6 +12,7 @@ extern "C"
     //#define PRINT_WnB
 
 #ifdef DATALOADER
+#define _DEFAULT_SOURCE // For DT_REG as it is non standard.
 #include <dirent.h> // For directory operations
 #include <sys/types.h>
 #endif
@@ -29,6 +21,17 @@ extern "C"
 #include <math.h>
 #define PRECISION 1e-4
 #endif
+
+
+/* Common includes */
+#include <ctype.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "incbin.h"
 
 /* General macros */
 #define MAX_STR_LEN 10
@@ -52,20 +55,37 @@ extern "C"
 #define LIF3_SIZE 10
 
 #ifdef BINARY_IMPLEMENTATION
-#define PATH_WEIGHTS_FC1_BIN "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias_binary/fc1_weight.bin"
-#define PATH_BIAS_FC1_BIN "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias_binary/fc1_bias.bin"
-#define PATH_WEIGHTS_FC2_BIN "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias_binary/fc2_weight.bin"
-#define PATH_BIAS_FC2_BIN "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias_binary/fc2_bias.bin"
-#define PATH_WEIGHTS_FC3_BIN "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias_binary/fc3_weight.bin"
-#define PATH_BIAS_FC3_BIN "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias_binary/fc3_bias.bin"
+INCBIN_EXTERN(FC1_WEIGHTS);
+INCBIN_EXTERN(FC1_BIAS);
+INCBIN_EXTERN(FC2_WEIGHTS);
+INCBIN_EXTERN(FC2_BIAS);
+INCBIN_EXTERN(FC3_WEIGHTS);
+INCBIN_EXTERN(FC3_BIAS);
 #else
-#define PATH_WEIGHTS_FC1 "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias/fc1_weights.csv"
-#define PATH_BIAS_FC1 "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias/fc1_bias.csv"
-#define PATH_WEIGHTS_FC2 "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias/fc2_weights.csv"
-#define PATH_BIAS_FC2 "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias/fc2_bias.csv"
-#define PATH_WEIGHTS_FC3 "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias/fc3_weights.csv"
-#define PATH_BIAS_FC3 "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias/fc3_bias.csv"
+INCTXT_EXTERN(FC1_WEIGHTS);
+INCTXT_EXTERN(FC1_BIAS);
+INCTXT_EXTERN(FC2_WEIGHTS);
+INCTXT_EXTERN(FC2_BIAS);
+INCTXT_EXTERN(FC3_WEIGHTS);
+INCTXT_EXTERN(FC3_BIAS);
 #endif
+
+#ifdef BINARY_IMPLEMENTATION
+#define PATH_WEIGHTS_FC1_BIN    "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias_binary/fc1_weight.bin"
+#define PATH_BIAS_FC1_BIN       "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias_binary/fc1_bias.bin"
+#define PATH_WEIGHTS_FC2_BIN    "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias_binary/fc2_weight.bin"
+#define PATH_BIAS_FC2_BIN       "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias_binary/fc2_bias.bin"
+#define PATH_WEIGHTS_FC3_BIN    "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias_binary/fc3_weight.bin"
+#define PATH_BIAS_FC3_BIN       "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias_binary/fc3_bias.bin"
+#else
+#define PATH_WEIGHTS_FC1        "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias/fc1_weights.csv"
+#define PATH_BIAS_FC1           "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias/fc1_bias.csv"
+#define PATH_WEIGHTS_FC2        "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias/fc2_weights.csv"
+#define PATH_BIAS_FC2           "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias/fc2_bias.csv"
+#define PATH_WEIGHTS_FC3        "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias/fc3_weights.csv"
+#define PATH_BIAS_FC3           "../../models/SNN_3L_simple_LIF_NMNIST/weights_and_bias/fc3_bias.csv"
+#endif
+
 
     /* Floating point representation for network elements like membrane potentials, thresholds and beta values */
     typedef float cfloat_t;
