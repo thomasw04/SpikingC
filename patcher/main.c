@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <getopt.h>
 
 #include "config.h"
 
@@ -87,7 +88,7 @@ void freeCSVData(float **data, int rows)
     free(data);
 }
 
-int load_float_list(const char* filepath, wfloat_t** data)
+long open_csv(const char* filepath, FILE** out_file, char** buffer, size_t* elements)
 {
     FILE *file = fopen(filepath, "r");
     if (!file)
@@ -99,66 +100,75 @@ int load_float_list(const char* filepath, wfloat_t** data)
     size_t size = fseek(file, 0, SEEK_END);
     rewind(file);
 
-    char buffer[size];
-    fread(buffer, 1, size, file);
+    *buffer = (char*)malloc(size);
+    size_t ret = fread(*buffer, 1, size, file);
+
+    if (ret != size)
+    {
+        if(ferror(file))
+        {
+            fprintf(stderr, "Failed to read file %s: %s\n", filepath, strerror(errno));
+            fclose(file);
+            return -errno;
+        }
+        
+        fprintf(stderr, "Failed to read file %s: Unexpected EOF.\n", filepath);
+        fclose(file);
+        return -EIO;
+    }
 
     size_t count = 0;
     for (size_t i = 0; i < size; i++)
     {
         //We don't handle \r\n line endings for now.
-        if (buffer[i] == ',' || buffer[i] == '\n')
+        if (*buffer[i] == ',' || *buffer[i] == '\n')
             count++;
     }
 
-    // Assuming data is already allocated.
-    *data = (wfloat_t*)malloc(count * sizeof(wfloat_t));
+    *elements = count;
+    *out_file = file;
+    return size;
+}
 
-    if (!*data)
-    {
-        // Handle malloc failure
-        fclose(file);
-        return -ENOMEM;
-    }
 
+long f32_array_load(char* src, size_t src_size, wfloat_t* dest, size_t size)
+{
     size_t index = 0;
     size_t begin = 0;
-    for(size_t i = 0; i < size; i++)
+    for(size_t i = 0; i < src_size; i++)
     {
-        if (buffer[i] == ',' || buffer[i] == '\n')
+        if (src[i] == ',' || src[i] == '\n')
         {
-            buffer[i] = '\0';
-            float val = strtof(buffer + begin, NULL);
+            src[i] = '\0';
+            float val = strtof(src + begin, NULL);
 
             if(val == 0.0f) {
-                fprintf(stderr, "Failed to convert string to float: %s\n", buffer + begin);
-                free(*data);
-                fclose(file);
+                fprintf(stderr, "Failed to convert string to float: %s\n", src + begin);
                 return -EINVAL;
             }
 
             if (errno == ERANGE)
             {
-                fprintf(stderr, "Out of range error: %s\n", buffer + begin);
-                free(*data);
-                fclose(file);
+                fprintf(stderr, "Out of range error: %s\n", src + begin);
                 return -ERANGE;
             }
 
-            (*data)[index++] = val;
+            dest[index++] = val;
+
+            if(index >= size)
+            {
+                fprintf(stderr, "Too many elements in file.\n");
+                return -E2BIG;
+            }
+
             begin = i + 1;
         }
     }
 
-    return count;
+    return index;
 }
 
-bool is_little_endian()
-{
-    int num = 1;
-    return (*(char *)&num == 1);
-}
-
-int serialize_float_list(const char* filepath, wfloat_t* data, size_t size, bool little_endian)
+int f32_array_store(const char* filepath, wfloat_t* data, size_t size, bool is_target_le)
 {
     FILE *file = fopen(filepath, "w");
     if (!file)
@@ -168,7 +178,8 @@ int serialize_float_list(const char* filepath, wfloat_t* data, size_t size, bool
     }
 
     //Write raw bytes to file with the correct endianess.
-    bool swap = is_little_endian() != little_endian;
+    int num = 1;
+    bool swap = (*(char *)&num == 1) != is_target_le;
 
     for (size_t i = 0; i < size; i++)
     {
@@ -191,32 +202,84 @@ int serialize_float_list(const char* filepath, wfloat_t* data, size_t size, bool
 }
 
 
-
-void loadStaticWeightsAndBiases(void)
+int main(int argc, char* argv[])
 {
-    // Adjust file paths and array indices as needed
-    loadCSVToStaticWeightArray(PATH_WEIGHTS_FC1, W, 0, INPUT_SIZE * L1_SIZE_OUT);
-    loadCSVToStaticBiasArray(PATH_BIAS_FC1, B, 0, L1_SIZE_OUT);
+    int opt;
 
-    // Calculate start index for each subsequent layer based on the previous layers' sizes
-    unsigned int wIdx2 = INPUT_SIZE * L1_SIZE_OUT;
-    unsigned int bIdx2 = L1_SIZE_OUT;
+    char *output_file = NULL;
+    bool target_le = false;
 
-    loadCSVToStaticWeightArray(PATH_WEIGHTS_FC2, W, wIdx2, LIF1_SIZE * L2_SIZE_OUT);
-    loadCSVToStaticBiasArray(PATH_BIAS_FC2, B, bIdx2, L2_SIZE_OUT);
+    while ((opt = getopt(argc, argv, "o:l")) != -1)
+    {
+        switch (opt)
+        {
+            case 'l':
+                target_le = true;
+                break;
+            case 'o':
+                output_file = optarg;
+                break;
+            default:
+                fprintf(stderr, "Usage: %s [input...] [-o output]\n", argv[0]);
+                exit(EXIT_FAILURE);
+        }
+    }
 
-    // And so on for each layer, adjusting the indices accordingly
-    unsigned int wIdx3 = wIdx2 + LIF1_SIZE * L2_SIZE_OUT;
-    unsigned int bIdx3 = bIdx2 + L2_SIZE_OUT;
+    if (!output_file)
+    {
+        fprintf(stderr, "No output file given.\n");
+        exit(EXIT_FAILURE);
+    }
 
-    loadCSVToStaticWeightArray(PATH_WEIGHTS_FC3, W, wIdx3, LIF2_SIZE * L3_SIZE_OUT);
-    loadCSVToStaticBiasArray(PATH_BIAS_FC3, B, bIdx3, L3_SIZE_OUT);
-}
+    // Load all the files that were given
+    FILE* file;
+    if(optind < 0 || optind >= argc)
+    {
+        fprintf(stderr, "No input files given.\n");
+        exit(EXIT_FAILURE);
+    }
 
+    char* buffer[argc - optind];
+    size_t sizes[argc - optind];
+    size_t total_elements = 0;
+    for (int i = optind; i < argc; i++)
+    {
+        size_t elements = 0;
+        long size = open_csv(argv[i], &file, &buffer[i - optind], &elements);
 
-int main() {
-    
+        if (size < 0)
+        {
+            exit(EXIT_FAILURE);
+        }
 
-    printf("Hello, World!\n");
+        sizes[i - optind] = size;
+        total_elements += elements;
+        printf("load %s\n", argv[i]);
+    }
+
+    // Allocate memory for the data
+    wfloat_t* data = (wfloat_t*)malloc(total_elements * sizeof(wfloat_t));
+
+    // Load the data into the array
+    size_t index = 0;
+    for (int i = optind; i < argc; i++)
+    {
+        long ret = f32_array_load(buffer[i - optind], sizes[i - optind], data + index, total_elements - index);
+
+        if (ret != (long)(total_elements - index))
+        {
+            exit(EXIT_FAILURE);
+        }
+
+        index += ret;
+    }
+
+    // Store the data in a file
+    int ret = f32_array_store(output_file, data, total_elements, target_le);
+
+    if (ret != 0)
+    {
+        exit(EXIT_FAILURE);
+    }
     return 0;
 }
